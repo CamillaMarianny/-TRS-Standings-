@@ -1,0 +1,81 @@
+[
+    {
+        "race": "Japanese GP (Tsukuba)",
+        "podium":["yoelan3", "jiwjiw60560", "crabie_Finnie18703"],
+        "fastestLap":["crabie_Finnie18703"]
+    },
+    {
+        "race": "United States GP",
+        "podium":["yoelan3", "Cynotex", "jiwjiw60560"],
+        "fastestLap":["yoelan3"]
+    },
+    {
+        "race": "Italian GP",
+        "podium":["yoelan3", "Dragon_GhostBR", "Cynotex"],
+        "fastestLap":["yoelan3"]
+    },
+    {
+        "race": "French GP",
+        "podium":["yoelan3", "jiwjiw60560", "Cynotex"],
+        "fastestLap":["yoelan3"]
+    },
+    {
+        "race": "English GP",
+        "podium":["yoelan3", "Cynotex", "dogemastertrain"],
+        "fastestLap":["yoelan3"]
+    },
+    {
+        "race": "Japanese GP (Fuji International Speedway)",
+        "podium":["yoelan3", "crabie_Finnie18703", "Dragon_GhostBR"],
+        "fastestLap":["crabie_Finnie18703"]
+    },
+    {
+        "race": "German GP",
+        "podium":["yoelan3", "crabie_Finnie18703", "DINOCHAMPION"],
+        "fastestLap":["crabie_Finnie18703"]
+    },
+    {
+        "race": "Belgian GP",
+        "podium":["Cynotex", "yoelan3", "dogemastertrain"],
+        "fastestLap":["Cynotex"]
+    },
+    {
+        "race": "Japanese GP (Tsukuba)",
+        "podium":["jiwjiw60560", "yoelan3", "Cynotex"],
+        "fastestLap":["yoelan3"]
+    },
+    {
+        "race": "United States GP",
+        "podium":["yoelan3", "Cynotex", "DINOCHAMPION"],
+        "fastestLap":["yoelan3"]
+    },
+    {
+        "race": "Italian GP",
+        "podium":["", "", ""],
+        "fastestLap":[]
+    },
+    {
+        "race": "French GP",
+        "podium":["", "", ""],
+        "fastestLap":[]
+    },
+    {
+        "race": "English GP",
+        "podium":["", "", ""],
+        "fastestLap":[]
+    },
+    {
+        "race": "Japanese GP (Fuji International Speedway)",
+        "podium":["", "", ""]
+    },
+    {
+        "race": "German GP",
+        "podium":["", "", ""],
+        "fastestLap":[]
+    },
+    {
+        "race": "Belgian GP",
+        "podium":["", "", ""],
+        "fastestLap":[]
+    }
+]
