@@ -1,3 +1,14 @@
+// ================================
+// TRS Season Standings Dashboard
+// Projeto Final - Desenvolvimento Web
+// Tecnologias:
+// JavaScript, React, Bootstrap,
+// Chart.js, Day.js, SweetAlert2,
+// Open-Meteo API e LocalStorage
+// ================================
+
+// Define as cores utilizadas para cada equipe
+// e para os tipos de pilotos.
 const driverColors = {
     "Honda Racing Team": {
         "Main Driver": "#BE0D12",
@@ -21,10 +32,132 @@ const driverColors = {
     }
 };
 
+// Coordenadas geográficas dos circuitos.
+// Utilizadas para obter clima em tempo real
+// através da API Open-Meteo.
+const circuitLocations = {
+    "Italian GP": {
+        lat: 45.6156,
+        lon: 9.2811,
+        city: "Monza, Italy"
+    },
 
+    "United States GP": {
+        lat: 30.1328,
+        lon: -97.6411,
+        city: "Austin, USA"
+    },
+
+    "French GP": {
+        lat: 43.2506,
+        lon: 5.7917,
+        city: "Le Castellet, France"
+    },
+
+    "Belgian GP": {
+        lat: 50.4372,
+        lon: 5.9714,
+        city: "Spa, Belgium"
+    },
+
+    "German GP": {
+        lat: 49.3278,
+        lon: 8.5658,
+        city: "Hockenheim, Germany"
+    },
+
+    "English GP": {
+        lat: 52.0733,
+        lon: -1.0147,
+        city: "Silverstone, England"
+    },
+
+    "Japanese GP (Tsukuba)": {
+        lat: 36.1036,
+        lon: 140.0870,
+        city: "Tsukuba, Japan"
+    },
+
+    "Japanese GP (Fuji International Speedway)": {
+        lat: 35.3717,
+        lon: 138.9270,
+        city: "Fuji, Japan"
+    }
+};
+
+// Carrega arquivos JSON locais.
+// Caso ocorra erro, exibe alerta usando SweetAlert2.
 async function loadJSON(path) {
-    const res = await fetch(path);
-    return await res.json();
+
+    try {
+
+        const res = await fetch(path);
+
+        if (!res.ok) {
+            throw new Error(`Failed to load ${path}`);
+        }
+
+        return await res.json();
+
+    } catch (error) {
+
+        console.error(error);
+
+        Swal.fire({
+            icon: "error",
+            title: "Loading Error",
+            text: error.message
+        });
+
+        return [];
+    }
+}
+
+// Consulta a API Open-Meteo e retorna
+// temperatura atual e código climático.
+async function getWeather(lat, lon) {
+
+    try {
+
+        const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`
+        );
+
+        const data = await response.json();
+
+        return {
+            temperature: data.current.temperature_2m,
+            weatherCode: data.current.weather_code
+        };
+
+    } catch (error) {
+
+        console.error(error);
+
+        return null;
+    }
+}
+
+// Converte os códigos retornados pela API
+// em descrições legíveis para o usuário.
+function getWeatherDescription(code) {
+
+    const weatherCodes = {
+        0: "Clear Sky",
+        1: "Mostly Clear",
+        2: "Partly Cloudy",
+        3: "Cloudy",
+        45: "Fog",
+        48: "Dense Fog",
+        51: "Light Drizzle",
+        61: "Rain",
+        63: "Moderate Rain",
+        65: "Heavy Rain",
+        80: "Rain Showers",
+        95: "Thunderstorm"
+    };
+
+    return weatherCodes[code] || "Unknown";
 }
 
 let drivers = [];
@@ -32,11 +165,30 @@ let races = [];
 let teamsData = [];
 let podiums = []
 
+// Inicializa a aplicação carregando
+// todos os arquivos de dados e renderizando
+// os componentes da interface.
 async function init() {
     drivers = await loadJSON("data/drivers.json");
     races = await loadJSON("data/races.json");
     teamsData = await loadJSON("data/teams.json");
     podiums = await loadJSON("data/results.json");
+
+// Recupera as preferências de ordenação
+// salvas anteriormente pelo usuário.
+const savedStat =
+    localStorage.getItem("driverSortStat");
+
+const savedOrder =
+    localStorage.getItem("driverSortOrder");
+
+driverSortStat.value =
+    localStorage.getItem("driverSortStat")
+    || "points";
+
+driverSortOrder.value =
+    localStorage.getItem("driverSortOrder")
+    || "desc";
 
     sortDrivers();
     renderTeams();
@@ -54,6 +206,8 @@ const driverSortStat = document.getElementById("driverSortStat");
 const driverSortOrder = document.getElementById("driverSortOrder");
 
 
+// Cria dinamicamente os cards dos pilotos
+// e aplica a cor correspondente à equipe.
 function renderDrivers(list) {
     driversContainer.innerHTML = "";
 
@@ -61,9 +215,10 @@ function renderDrivers(list) {
         const card = document.createElement("div");
         card.classList.add(
             "driver",
+            "shadow-sm",
+            "mb-3",
             d.role === "Main Driver" ? "main-driver" : "reserve-driver"
         );
-
         const color = driverColors[d.team]?.[d.role] || "#FFF";
         card.style.setProperty("--driver-color", color);
 
@@ -103,6 +258,8 @@ info.innerHTML = `
     </div>
 `;
 
+// Ordena os pilotos conforme os filtros
+// selecionados pelo usuário.
 function sortDrivers() {
     const stat = driverSortStat.value;
     const order = driverSortOrder.value;
@@ -147,9 +304,30 @@ function sortDrivers() {
     renderDrivers(sorted);
 }
 
-driverSortStat.addEventListener("change", sortDrivers);
-driverSortOrder.addEventListener("change", sortDrivers);
+// Salva a preferência de ordenação
+// para futuras visitas ao sistema.
+driverSortStat.addEventListener("change", () => {
 
+    localStorage.setItem(
+        "driverSortStat",
+        driverSortStat.value
+    );
+
+    sortDrivers();
+});
+
+driverSortOrder.addEventListener("change", () => {
+
+    localStorage.setItem(
+        "driverSortOrder",
+        driverSortOrder.value
+    );
+
+    sortDrivers();
+});
+
+// Gera os cards das equipes mostrando
+// pontuação, vitórias e pilotos.
 function renderTeams() {
     teamsContainer.innerHTML = "";
 
@@ -169,7 +347,11 @@ function renderTeams() {
                 .map(d => d.name);
 
             const card = document.createElement("div");
-            card.classList.add("team");
+             card.classList.add(
+                "team",
+                "shadow",
+                "mb-3"
+            );
 
             card.style.setProperty(
                 "--team-color",
@@ -204,6 +386,8 @@ function renderTeams() {
         });
 }
 
+// Cria o gráfico de classificação
+// utilizando Chart.js.
 function renderRankingChart() {
 
     const equipes = [...teamsData]
@@ -233,7 +417,8 @@ function renderRankingChart() {
         i < 3 ? "#FFFFFF" : "#333333"
     );
 
-    const ctx = document.getElementById("graficoCorrida");
+    const ctx =
+    document.getElementById("graficoCorrida").getContext("2d");
 
     new Chart(ctx, {
         type: "bar",
@@ -323,6 +508,8 @@ function renderRankingChart() {
     });
 }
 
+// Localiza a próxima corrida do calendário
+// com base na data atual.
 function getNextRace() {
     const now = new Date();
 
@@ -339,23 +526,34 @@ function getNextRace() {
         .sort((a, b) => a.dateObj - b.dateObj)[0];
 }
 
-function renderNextRace() {
-    const container = document.getElementById("nextRace");
-    const race = getNextRace();
+// Exibe informações da próxima corrida,
+// incluindo clima em tempo real obtido pela API.
+async function renderNextRace() {
+        const container = document.getElementById("nextRace");
+        const race = getNextRace();
 
-    if (!race) {
-        container.innerHTML = `<p>Season finished 🏁</p>`;
-        return;
-    }
+        if (!race) {
+            container.innerHTML = `<p>Season finished 🏁</p>`;
+            return;
+        }
 
-    const daysLeft = Math.ceil(
-        (race.dateObj - new Date()) / (1000 * 60 * 60 * 24)
-    );
+        const location = circuitLocations[race.name];
 
-    container.innerHTML = `
+        const weather = location
+        ? await getWeather(location.lat, location.lon)
+        : null;
+
+        const daysLeft = dayjs(race.dateObj)
+        .diff(dayjs(), "day");
+
+        container.innerHTML = `
 
         <div class="raceName">${race.name}</div>
-        <div class="raceTrack">${race.track}</div>
+
+        <div class="raceTrack">
+            ${race.track}
+            ${location ? `• ${location.city}` : ""}
+        </div>
 
         <div class="raceDate">
             ${race.dateObj.toLocaleDateString("en-US")}
@@ -364,10 +562,22 @@ function renderNextRace() {
         <div class="raceCountdown">
             ${daysLeft === 0 ? "Today!" : `${daysLeft} days to go`}
         </div>
-        <img class="raceMap" src="${race.map}" alt="${race.track} map">
+
+        <div class="raceWeather">
+    ${
+        weather
+        ? `🌡️ ${weather.temperature}°C • ${getWeatherDescription(weather.weatherCode)}`
+        : "🌡️ Weather unavailable"
+    }
+    </div>
+
+        <img class="raceMap"
+            src="${race.map}"
+            alt="${race.track} map">
     `;
 }
 
+// Renderiza todos os resultados da temporada.
 function renderPodiums() {
 
     const firstHalfContainer = document.getElementById("resultsFHalf");
@@ -380,6 +590,8 @@ function renderPodiums() {
     renderHalf(podiums.slice(8, 16), secondHalfContainer, 9);
 }
 
+// Renderiza uma seção específica dos resultados
+// (primeira ou segunda metade do campeonato).
 function renderHalf(list, container, startRound) {
 
     list.forEach((race, index) => {
