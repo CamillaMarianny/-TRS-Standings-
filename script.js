@@ -43,9 +43,9 @@ const circuitLocations = {
     },
 
     "United States GP": {
-        lat: 30.1328,
-        lon: -97.6411,
-        city: "Austin, USA"
+        lat: 26.4499,
+        lon: -81.3537,
+        city: "Sebring, USA"
     },
 
     "French GP": {

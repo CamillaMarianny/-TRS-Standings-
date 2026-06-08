@@ -23,7 +23,7 @@ function WeatherWidget() {
     React.useEffect(() => {
 
         fetch(
-            "https://api.open-meteo.com/v1/forecast?latitude=45.6156&longitude=9.2811&current=temperature_2m"
+            "https://api.open-meteo.com/v1/forecast?latitude=43.2506&longitude=5.7917&current=temperature_2m"
         )
             .then(r => r.json())
             .then(data => {
@@ -41,7 +41,7 @@ function WeatherWidget() {
                 Open-Meteo API.
             </p>
 
-            <p>Location: Monza, Italy</p>
+            <p>Location: Le Castellet, France</p>
             <p>Temperature: {temp}°C</p>
         </div>
     );
